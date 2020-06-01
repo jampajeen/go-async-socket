@@ -3,11 +3,13 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"net"
 	_ "net/http/pprof"
 	"os"
 	"strconv"
 	"strings"
+	"syscall"
 
 	Log "github.com/jampajeen/go-async-socket/logger"
 )
@@ -23,6 +25,7 @@ func main() {
 	go hub.run()
 
 	go keyboardInput(hub) // TODO: remove if needed
+	go readCmdPipe(hub)   // TODO: remove if needed
 
 	for {
 		conn, err := ln.Accept()
@@ -39,21 +42,42 @@ func main() {
 	}
 }
 
+func readCmdPipe(hub *Hub) {
+	pipeName := "cmdpipe"
+	//to create pipe: does not work in windows
+	syscall.Mkfifo(pipeName, 0666)
+
+	file, err := os.OpenFile(pipeName, os.O_RDONLY, os.ModeNamedPipe)
+	if err != nil {
+		log.Fatal("Open named pipe file error:", err)
+	}
+	reader := bufio.NewReader(file)
+	for {
+		line, err := reader.ReadString('\n')
+		if err == nil {
+			processCmd(hub, line)
+		}
+	}
+}
+
 func keyboardInput(hub *Hub) {
 	fmt.Print("Enter text: \n")
 	for {
 		reader := bufio.NewReader(os.Stdin)
 		text, _ := reader.ReadString('\n')
+		processCmd(hub, text)
+	}
+}
 
-		if strings.HasPrefix(text, "_close_") {
-			hub.closeAll()
-		} else if strings.HasPrefix(text, "_to_") {
-			s := strings.Split(text, " ")
-			if len(s) > 2 {
-				hub.sendToIDUser([]byte(s[2]), s[1])
-			}
-		} else {
-			hub.sendBroadcastCH([]byte(text))
+func processCmd(hub *Hub, text string) {
+	if strings.HasPrefix(text, "_close_") {
+		hub.closeAll()
+	} else if strings.HasPrefix(text, "_to_") {
+		s := strings.Split(text, " ")
+		if len(s) > 2 {
+			hub.sendToIDUser([]byte(s[2]), s[1])
 		}
+	} else {
+		hub.sendBroadcastCH([]byte(text))
 	}
 }
