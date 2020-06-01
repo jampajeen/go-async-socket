@@ -1,6 +1,6 @@
-# go-async-socket
+# Basic TCP socket server
 
-## Examples:
+## How to try:
 
 Connect to server by using netcat
 ```
