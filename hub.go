@@ -1,6 +1,6 @@
 package main
 
-import Log "github.com/jampajeen/go-async-socket/logger"
+import Log "github.com/jampajeen/go-logger"
 
 // Hub ...
 type Hub struct {
@@ -27,7 +27,7 @@ func (hub *Hub) run() {
 		case client := <-hub.registerCH:
 			hub.clients[client] = true
 			hub.clientUserMap[client.IDUser] = client
-			// go hub.onConnected(client)
+
 			hub.onConnected(client)
 
 		case client := <-hub.unregisterCH:
@@ -35,7 +35,7 @@ func (hub *Hub) run() {
 				delete(hub.clientUserMap, client.IDUser)
 				delete(hub.clients, client)
 				close(client.sendCH)
-				// go hub.onDisconnected(client)
+
 				hub.onDisconnected(client)
 			}
 

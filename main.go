@@ -11,7 +11,7 @@ import (
 	"strings"
 	"syscall"
 
-	Log "github.com/jampajeen/go-async-socket/logger"
+	Log "github.com/jampajeen/go-logger"
 )
 
 func main() {
@@ -61,7 +61,7 @@ func readCmdPipe(hub *Hub) {
 }
 
 func keyboardInput(hub *Hub) {
-	fmt.Print("Enter text: \n")
+	fmt.Print("Enter command: \n")
 	for {
 		reader := bufio.NewReader(os.Stdin)
 		text, _ := reader.ReadString('\n')

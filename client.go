@@ -6,7 +6,7 @@ import (
 	"net"
 	"time"
 
-	Log "github.com/jampajeen/go-async-socket/logger"
+	Log "github.com/jampajeen/go-logger"
 )
 
 // Client ...
@@ -39,7 +39,6 @@ func (c *Client) writePump() {
 				Log.Error(errors.New("Error write"))
 				return
 			}
-			// go c.hub.onSent(c, message)
 			c.hub.onSent(c, message)
 
 		case <-pingTicker.C:
@@ -66,8 +65,6 @@ func (c *Client) readPump() {
 			break
 		}
 
-		// go c.hub.onReceived(c, []byte(data))
 		c.hub.onReceived(c, []byte(data))
-		// c.sendCH <- []byte(data)
 	}
 }
