@@ -37,3 +37,4 @@
 !.vscode/extensions.json
 
 cmdpipe
+go-async-socket
